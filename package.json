@@ -1,6 +1,6 @@
 {
   "name": "@preactionme/tap-playwright",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Test-Anything Protocol (TAP) output for Playwright Test",
   "main": "dist/index.js",
   "files": [
