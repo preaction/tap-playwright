@@ -1,6 +1,6 @@
 
 import { FullConfig, TestStatus } from "@playwright/test";
-import { Reporter, Suite, TestCase, TestResult } from "@playwright/test/reporter";
+import { Reporter, Suite, TestCase, TestResult, TestError } from "@playwright/test/reporter";
 
 class TapReporter implements Reporter {
   suite!: Suite;
@@ -25,6 +25,45 @@ class TapReporter implements Reporter {
       title += " # SKIP" + ( anno && anno.description ? ` ${anno.description}` : "" );
     }
     console.log(`${ok} ${idx} - ${title}`);
+    if ( result.error ) {
+      this.onError( result.error );
+    }
+  }
+
+  onStdOut( chunk: string|Buffer, test: void|TestCase, result: void|TestResult ) {
+    if ( !!process.env.TEST_VERBOSE ) {
+      this.writeOut( chunk );
+    }
+  }
+  onStdErr( chunk: string|Buffer, test: void|TestCase, result: void|TestResult ) {
+    this.writeErr( chunk );
+  }
+  onError( err:TestError ) {
+    if ( err.value ) {
+      this.writeErr( `ERROR: ${err.value}` );
+    }
+    else if ( err.stack ) {
+      // Remove last three lines of stack trace, since it is always in
+      // Playwright's worker runner
+      let stack = err.stack.split(/\n/).slice(0,-3).join("\n");
+      this.writeErr( `ERROR: ${stack}` );
+    }
+    else {
+      this.writeErr( `ERROR: ${err.message}` );
+    }
+  }
+
+  writeOut( text:string|Buffer ) {
+    if ( text instanceof Buffer ) {
+      text = text.toString();
+    }
+    console.log( `# ${text.replace(/\n+$/,"").replace(/\n/g, "\n# ")}` );
+  }
+  writeErr( text:string|Buffer ) {
+    if ( text instanceof Buffer ) {
+      text = text.toString();
+    }
+    console.error( `# ${text.replace(/\n+$/,"").replace(/\n/g, "\n# ")}` );
   }
 }
 

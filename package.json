@@ -2,7 +2,7 @@
   "name": "@preactionme/tap-playwright",
   "version": "0.0.1",
   "description": "Test-Anything Protocol (TAP) output for Playwright Test",
-  "main": "lib/index.js",
+  "main": "dist/index.js",
   "files": [
     "dist"
   ],
