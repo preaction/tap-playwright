@@ -1,6 +1,6 @@
 
 import { FullConfig, TestStatus } from "@playwright/test";
-import { Reporter, Suite, TestCase, TestResult, TestError } from "@playwright/test/reporter";
+import { Reporter, Suite, TestCase, TestResult, TestError, TestStep } from "@playwright/test/reporter";
 
 class TapReporter implements Reporter {
   suite!: Suite;
@@ -27,6 +27,17 @@ class TapReporter implements Reporter {
     console.log(`${ok} ${idx} - ${title}`);
     if ( result.error ) {
       this.onError( result.error );
+    }
+  }
+
+  onStepEnd(test: TestCase, result: TestResult, step: TestStep) {
+    // When a step has an error, Playwright unwinds the step stack and
+    // calls the onStepEnd method. One of the steps is an "expect" step,
+    // which means playwright has to be instrumenting expect() somehow.
+    // Maybe I can do the same to get a better assertion library working
+    // with this reporter...
+    if ( step.error ) {
+      this.writeErr( `In step ${step.title}` );
     }
   }
 
