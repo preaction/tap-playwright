@@ -7,7 +7,7 @@
     "dist"
   ],
   "scripts": {
-    "test": "playwright test -c t",
+    "test": "playwright test -c test",
     "build": "tsc"
   },
   "keywords": [ "playwright", "tap" ],
