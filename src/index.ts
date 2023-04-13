@@ -89,10 +89,17 @@ class TapReporter implements Reporter {
       let anno = test.annotations.find( a => a.type == "skip" || a.type == "fixme" );
       title += "  # SKIP" + ( anno && anno.description ? ` ${anno.description}` : "" );
     }
+
     // Use console.log directly to skip TAP commenting
     console.log(`${ok} ${idx} - ${title}`);
     if ( result.error ) {
       const err = result.error;
+      const step = result.steps.find(step => step.error)
+
+      if ( step ){
+        const locationStr: string = step.location && ` @ ${step.location?.file}:${step.location?.line}:${step.location?.column}` || ''
+        this.write( 'error', `[${idx}]`, `In step ${step.title}${locationStr}`);
+      }
       if ( err.value ) {
         this.write( 'error', `[${idx}]`, err.value );
       }
@@ -112,16 +119,7 @@ class TapReporter implements Reporter {
   }
 
   onStepEnd(test: TestCase, result: TestResult, step: TestStep) {
-    const idx = this.tests.indexOf( test ) + 1;
-    // XXX: Delay output to re-order tests run in parallel?
-    // When a step has an error, Playwright unwinds the step stack and
-    // calls the onStepEnd method. One of the steps is an "expect" step,
-    // which means playwright has to be instrumenting expect() somehow.
-    // Maybe I can do the same to get a better assertion library working
-    // with this reporter...
-    if ( step.error ) {
-      this.write( 'error', `[${idx}]`, `In step ${step.title}` );
-    }
+    // step info is assed to error out in onTestEnd
   }
 
   write( dest:'log'|'error', prefix: string, text: string|Buffer ) {
