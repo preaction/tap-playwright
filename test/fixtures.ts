@@ -1,4 +1,4 @@
-
+ 
 import { test as base, TestInfo } from "@playwright/test";
 import { spawn } from "child_process";
 import fs from "fs";
@@ -14,7 +14,7 @@ async function writeFiles(testInfo: TestInfo, files: Files) {
     files = {
       ...files,
       "playwright.config.ts": `
-        module.exports = { projects: [ { name: 'project' } ] };
+        module.exports = { projects: [ { name: 'project' }, { name: 'project2' } ] };
       `,
     };
   }
@@ -50,7 +50,7 @@ async function runPlaywrightTest(
   const args = [require.resolve("@playwright/test/cli"), "test"];
   args.push(
     "--reporter=" + require.resolve("../dist/index.js"),
-    "--workers=2",
+    "--workers=1",
     ...paramList,
   );
   if (additionalArgs) args.push(...additionalArgs);
