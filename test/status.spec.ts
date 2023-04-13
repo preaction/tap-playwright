@@ -38,14 +38,14 @@ test("should report test status", async ({ runInlineTest }) => {
     // XXX: diagnostics
     /^not ok 3 - project   a\.test\.ts  should break \(\d+\.\d{2}s\)/,
     // XXX: diagnostics
-    /^ok 4 - project   a\.test\.ts  should skip \(\d+\.\d{2}s\) # SKIP for reasons/,
-    /^ok 5 - project   a\.test\.ts  should fixme \(\d+\.\d{2}s\) # SKIP/,
+    /^ok 4 - project   a\.test\.ts  should skip \(\d+\.\d{2}s\)  # SKIP for reasons/,
+    /^ok 5 - project   a\.test\.ts  should fixme \(\d+\.\d{2}s\)  # SKIP/,
     /^ok 6 - project   a\.test\.ts  should expect fail \(\d+\.\d{2}s\)/,
     /^ok 7 - project2  a\.test\.ts  should pass \(\d+\.\d{2}s\)/,
     /^not ok 8 - project2  a\.test\.ts  should fail \(\d+\.\d{2}s\)/,
     /^not ok 9 - project2  a\.test\.ts  should break \(\d+\.\d{2}s\)/,
-    /^ok 10 - project2  a\.test\.ts  should skip \(\d+\.\d{2}s\) # SKIP for reasons/,
-    /^ok 11 - project2  a\.test\.ts  should fixme \(\d+\.\d{2}s\) # SKIP/,
+    /^ok 10 - project2  a\.test\.ts  should skip \(\d+\.\d{2}s\)  # SKIP for reasons/,
+    /^ok 11 - project2  a\.test\.ts  should fixme \(\d+\.\d{2}s\)  # SKIP/,
     /^ok 12 - project2  a\.test\.ts  should expect fail \(\d+\.\d{2}s\)/,
     "", // Final newline
   ];
