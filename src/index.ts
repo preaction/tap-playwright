@@ -2,12 +2,19 @@
 import { FullConfig, TestStatus } from "@playwright/test";
 import { Reporter, Suite, TestCase, TestResult, TestError, TestStep } from "@playwright/test/reporter";
 
+interface SuiteStats{
+    projectPadding: number;
+    testfileNamePadding: number;
+    nrProjects: number;    
+}
+
 class TapReporter implements Reporter {
   suite!: Suite;
   tests!: Array<TestCase>;
   testOutput!: { [index: number]: string };
   verbose!: boolean;
-
+  stats!: SuiteStats;
+  
   printsToStdio():boolean { return true }
 
   onBegin(config: FullConfig, suite: Suite): void {
@@ -15,12 +22,60 @@ class TapReporter implements Reporter {
     this.tests = suite.allTests();
     this.testOutput = {};
     this.verbose = !!process.env.TEST_VERBOSE;
+    
+    this.initSuiteStats()    
 
     // Write test plan line
     // Use console.log directly to skip TAP commenting
     console.log(`${1}..${this.tests.length}`);
   }
+  
+  /**
+   * get suite tests titles max length and project count for later usage in preparing padded titles
+   */
+  initSuiteStats(){
+    
+    let maxProjectNameLength = 0,
+      maxTestfileNameLenght = 0,
+      projects = new Set()
 
+    this.tests.map((t) => {
+      const [root, projectTitle, testfileName] = t.titlePath();
+      maxProjectNameLength = Math.max(
+        projectTitle.length,
+        maxProjectNameLength
+      );
+      maxTestfileNameLenght = Math.max(
+        testfileName.length,
+        maxTestfileNameLenght
+      );
+      if(!projects.has(projectTitle)){
+        projects.add(projectTitle)
+      }
+    });
+    
+    this.stats = {
+      projectPadding: maxProjectNameLength,
+      testfileNamePadding: maxTestfileNameLenght,
+      nrProjects: projects.size
+    }
+  }
+  
+  getPaddedFullTestTitle(test: TestCase): string{
+    const {
+      projectPadding,
+      testfileNamePadding,
+      nrProjects
+    } = this.stats
+    
+    const [rootIgnored, projectTitle, testfileName] = test.titlePath();
+    return [
+      nrProjects > 1 ? projectTitle.padEnd(projectPadding) : null,
+      testfileName.padEnd(testfileNamePadding),
+      test.title,
+    ].filter(Boolean).join("  ");    
+  }
+  
   onEnd():void {
     // XXX: If not running under a harness, write out a summary
   }
@@ -29,10 +84,10 @@ class TapReporter implements Reporter {
     // XXX: Delay output to re-order tests run in parallel?
     let ok = ["expected", "skipped"].indexOf(test.outcome()) >= 0 ? "ok" : "not ok",
       idx = this.tests.indexOf( test ) + 1;
-    let title = test.title;
+    let title = this.getPaddedFullTestTitle(test) + ` (${(result.duration / 1000).toFixed(2)}s)`;
     if ( test.outcome() === "skipped" ) {
       let anno = test.annotations.find( a => a.type == "skip" || a.type == "fixme" );
-      title += " # SKIP" + ( anno && anno.description ? ` ${anno.description}` : "" );
+      title += "  # SKIP" + ( anno && anno.description ? ` ${anno.description}` : "" );
     }
     // Use console.log directly to skip TAP commenting
     console.log(`${ok} ${idx} - ${title}`);
